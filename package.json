@@ -7,8 +7,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Mightyfrong",
+  "license": "GPL v3.0",
   "dependencies": {
     "discord.js": "^12.4.1"
   }
