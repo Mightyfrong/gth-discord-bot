@@ -21,7 +21,7 @@ export async function permUser(msg, level) {
     //let member = msg.guild.member(author); TO DO: CHECK FOR ADMIN ROLE
     if (user !== undefined) {
         if (user.permission >= level) {
-            console.log("user perm granted"); 
+            logger("user perm granted");
             return true;
         }
         else if (level == 2) {
@@ -32,7 +32,7 @@ export async function permUser(msg, level) {
             }
             return result;
         }
-        console.log(user.id + " permLevel " + user.permission + " needs " + level);
+        logger(user.id + " permLevel " + user.permission + " needs " + level);
         msg.reply("Sorry. You can't do that");
         return false;
     }
@@ -42,7 +42,7 @@ export async function permUser(msg, level) {
 
 //creates and seves new user in users.json
 function newUser(msg, users) {
-    console.log("new user");
+    logger("new user");
     users.users.push({ "id": msg.author.id, "permission": 1 });
     let data = JSON.stringify(users);
     fs.writeFileSync('../data/users.json', data);
@@ -54,7 +54,7 @@ function updateUserPerm(userId, level) {
     let users = JSON.parse(rawdata);
     for (var i = 0; i < users.users.length; i++) {
         if (users.users[i].id == userId) {
-            console.log(userId + " was permLevel " + users.users[i].permission + " now " + level);
+            logger(userId + " was permLevel " + users.users[i].permission + " now " + level);
             users.users[i].permission = level;
             break;
         }
@@ -63,7 +63,7 @@ function updateUserPerm(userId, level) {
     fs.writeFileSync('../data/users.json', data);
 }
 
-//displays disclaimer and 
+//displays disclaimer and
 async function disclaimer(msg, pUser) {
     //:white_check_mark: = ✅
     //:x: = ❌
@@ -80,14 +80,14 @@ Do you understand?`
         const yFilter = (reaction, user) => reaction.emoji.name === '✅' && user.id === pUser.id;
         const yCollector = message.createReactionCollector(yFilter, { time: 30000 });
         yCollector.on('collect', r => {
-            console.log(`Collected ${r.emoji.name}`);
+            logger(`Collected ${r.emoji.name}`);
             message.delete();
             resolve(true);
         });
         const nFilter = (reaction, user) => reaction.emoji.name === '❌' && user.id === pUser.id;
         const nCollector = message.createReactionCollector(nFilter, { time: 30000 });
         nCollector.on('collect', r => {
-            console.log(`Collected ${r.emoji.name}`)
+            logger(`Collected ${r.emoji.name}`)
             message.delete();
             resolve(false);
         });
@@ -99,4 +99,22 @@ Do you understand?`
             }
         });
     });
+}
+
+export function logger(input){
+  console.log(getTimestamp() + ' ' + input);
+}
+
+function getTimestamp() {
+  var unix = Date.now()
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var date = new Date(unix);
+  var year = date.getFullYear();
+  var month = months[date.getMonth()];
+  var day = date.getDate();
+  var hours = date.getHours();
+  var minutes = "0" + date.getMinutes();
+  var seconds = "0" + date.getSeconds();
+  var timestamp ='[' + month + '-' + day + '-' + year + ' ' + hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2) + ']';
+  return timestamp
 }

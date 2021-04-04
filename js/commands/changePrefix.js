@@ -21,9 +21,7 @@ function setPrefix(msg, tokens) {
         }
     }
     if (!server) {
-        console.log(server);
         server = settings.server.push({ "id": msg.guild.id, "prefix": tokens[0] });
-        console.log(server);
     }
     else {
         server.prefix = tokens[0];

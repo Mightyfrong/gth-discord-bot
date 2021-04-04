@@ -1,3 +1,4 @@
+import { logger } from './utils.js'
 import { createRequire } from 'module'
 const require = createRequire(import.meta.url);
 const fs = require('fs');
@@ -12,8 +13,9 @@ import { help } from './commands/help.js';
 import { ping } from './commands/ping.js';
 import { translate } from './commands/translate.js';
 import { translator } from './commands/translator.js';
+var gth = translator
 
-const commands = { changePrefix, guides, guide, language, alphabets, help, ping, translate, translator }; 
+const commands = { changePrefix, guides, guide, language, alphabets, help, ping, translate, translator, gth };
 
 //checks and passes commands to their respective files
 export async function commandHandler(msg) {
@@ -23,12 +25,12 @@ export async function commandHandler(msg) {
         let prefix = tokens.shift();
         let command = tokens.shift();
         if (talkingToMe(msg, prefix)) {
-            console.log("Command: " + command);
+            logger("Command: " + command);
             try {
                 commands[command](msg, tokens);
             }
             catch (err) {
-                console.log('Does not exist');
+                logger('Does not exist');
                 msg.reply("Sorry. I don't know that command.");
             }
         }
@@ -43,13 +45,13 @@ function permChannel(msg) {
         if (blacklist.server[i].id == msg.guild.id) {
             for (var j = 0; j < blacklist.server[i].channels.length; j++) {
                 if (blacklist.server[i].channels[j].id == msg.channel.id) {
-                    console.log("channel blacklisted");
+                    logger("channel blacklisted");
                     return false;
                 }
             }
         }
     }
-    console.log("channel ok");
+    logger("channel ok");
     return true;
 }
 
