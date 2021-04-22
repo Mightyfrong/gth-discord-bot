@@ -18,9 +18,9 @@ export async function permUser(msg, level) {
             break;
         }
     }
-    //let member = msg.guild.member(author); TO DO: CHECK FOR ADMIN ROLE
+    let manager = await msg.guild.member(author).hasPermission('MANAGE_GUILD', {}, true, true);
     if (user !== undefined) {
-        if (user.permission >= level) {
+        if (user.permission >= level || manager) {
             logger("user perm granted");
             return true;
         }

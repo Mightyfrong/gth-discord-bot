@@ -6,7 +6,10 @@ const puppeteer = require('puppeteer');
 
 logger("Starting GTH...");
 export const browser = await puppeteer.launch({
-  headless: true
+  headless: true,
+  //executablePath: '/usr/bin/chromium-browser', NEEDED FOR RUNNING ON RASPI
+  args: ['--no-sandbox', '--disabled-setupid-sandbox'],
+  ignoreDefaultArgs: ['--disable-extensions']
 });
 export const page = await browser.newPage();
 await page.setViewport({

@@ -2,7 +2,7 @@ const permLevel = 1;
 import { permUser } from '../utils.js';
 
 export async function help (msg, tokens) {
-    if (permUser(msg, permLevel)) {
+    if (await permUser(msg, permLevel)) {
         msg.channel.send(
 `These commands are currently supported:
 
