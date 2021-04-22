@@ -10,30 +10,49 @@ import { langsDict, browser, page } from './translate_setup.js'
 
 export async function translate (msg, tokens) {
     if (await permUser(msg, permLevel)) {
-      let lang = langsDict[tokens.shift().toLowerCase()];
-      logger(lang);
-      if (!lang) {
-        msg.channel.send('Unknown language');
-        return;
+      if (tokens[0]) {
+        quickTranslate(msg, tokens);
       }
-      await langSelect(lang);
-      await input(tokens.join(' ').toLowerCase());
-      output()
-      .then(img => {
-        msg.channel.send({
-          files: [{
-            attachment: img,
-            name: 'file.png'
-          }]
-        });
-        page.reload();
-      })
-      .catch(err => {
-        logger('[ERROR]' + err);
-        page.reload();
-        msg.channel.send('Something went wrong. Please try again.');
-      });
+      else {
+        slowTranslate(msg);
+      }
     }
+}
+
+async function quickTranslate (msg, tokens) {
+  let fg = '#F2B90D'
+  let bg = '#050F2E'
+  let lang = langsDict[tokens.shift().toLowerCase()];
+  logger(lang);
+  if (!lang) {
+    msg.channel.send('Unknown language');
+    return;
+  }
+  await langSelect(lang);
+  await setColor(fg, bg);
+  await input(tokens.join(' ').toLowerCase());
+  output()
+  .then(out => {
+    msg.channel.send({
+      files: [{
+        attachment: out[0],
+        name: 'file.png'
+      }]
+    });
+    if (out[1]) {
+      msg.channel.send(out[1]);
+    }
+    page.reload();
+  })
+  .catch(err => {
+    logger('[ERROR]' + err);
+    page.reload();
+    msg.channel.send('Something went wrong. Please try again.');
+  });
+}
+
+async function slowTranslate (msg) {
+  msg.channel.send('Translation assistant not supported yet. Please use "translate {language} [text]"');
 }
 
 async function langSelect (lang) {
@@ -70,7 +89,8 @@ async function input(text) {
 
 async function output() {
   return new Promise(async function (resolve, reject) {
-    const src = await page.$eval('#output-img', el => el.getAttribute("src"));
+    let src = await page.$eval('#output-img', el => el.getAttribute("src"));
+    let unsupChars = await page.$eval('#output', el => el.innerHTML);
     if (!src) {
       reject('No image');
       return;
@@ -81,6 +101,14 @@ async function output() {
     let svg = await buffer.content();
     await buffer.close();
     let img = await sharp(Buffer.from(svg))
-    resolve(img);
+    resolve([img, unsupChars]);
+  });
+}
+
+async function setColor(fg, bg) {
+  return new Promise(async function (resolve) {
+    if (fg) await page.$eval('#foregroundcolor', (el, fg) => {el.setAttribute('value', fg)}, fg);
+    if (bg) await page.$eval('#backgroundcolor', (el, bg) => {el.setAttribute('value', bg)}, bg);
+    resolve(true);
   });
 }
