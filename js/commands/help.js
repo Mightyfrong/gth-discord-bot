@@ -10,7 +10,7 @@ changePrefix: Changes the prefix to call the bot
 guides: Links to the r/gallifreyan wiki guide list
 help: Displays this
 ping: Pong!
-translate: Does not currently work
+translate {language} [text]: Sends image of translation
 translator: Links to the GTH`
         );
     }
