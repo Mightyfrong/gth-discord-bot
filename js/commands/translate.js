@@ -8,6 +8,7 @@ const sharp = require('sharp');
 
 import { langsDict, browser, page } from './translate_setup.js'
 
+//translation of user text
 export async function translate (msg, tokens) {
     if (await permUser(msg, permLevel)) {
       if (tokens[0]) {
@@ -19,11 +20,12 @@ export async function translate (msg, tokens) {
     }
 }
 
+//translate {language} [text]
 async function quickTranslate (msg, tokens) {
   let fg = '#F2B90D'
   let bg = '#050F2E'
   let lang = langsDict[tokens.shift().toLowerCase()];
-  logger(lang);
+  logger("lang: " + lang);
   if (!lang) {
     msg.channel.send('Unknown language');
     return;
@@ -51,10 +53,12 @@ async function quickTranslate (msg, tokens) {
   });
 }
 
+//TO DO: interactive menu
 async function slowTranslate (msg) {
   msg.channel.send('Translation assistant not supported yet. Please use "translate {language} [text]"');
 }
 
+//select language from dropdown on virtual webpage
 async function langSelect (lang) {
   return new Promise(async function (resolve) {
     await page.click("my-select");
@@ -67,6 +71,7 @@ async function langSelect (lang) {
   });
 }
 
+//clear text input field on virtual webpage
 async function reset () {
   return new Promise(async function (resolve) {
     await page.focus('#text');
@@ -78,6 +83,7 @@ async function reset () {
   });
 }
 
+//input text and click render on virtual webpage
 async function input(text) {
   return new Promise(async function (resolve) {
     await reset();
@@ -87,6 +93,7 @@ async function input(text) {
   });
 }
 
+//get blob url, create new page, copy and return svg data
 async function output() {
   return new Promise(async function (resolve, reject) {
     let src = await page.$eval('#output-img', el => el.getAttribute("src"));
@@ -105,6 +112,7 @@ async function output() {
   });
 }
 
+//set both forground and background color on virtual webpage
 async function setColor(fg, bg) {
   return new Promise(async function (resolve) {
     if (fg) await page.$eval('#foregroundcolor', (el, fg) => {el.setAttribute('value', fg)}, fg);

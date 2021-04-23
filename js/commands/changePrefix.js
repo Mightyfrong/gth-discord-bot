@@ -5,6 +5,7 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const fs = require('fs');
 
+//changes the prefix on the specific server
 export async function changePrefix (msg, tokens) {
     if (await permUser(msg, permLevel)) {
         setPrefix(msg, tokens);
@@ -12,6 +13,7 @@ export async function changePrefix (msg, tokens) {
     }
 }
 
+//write server and prefix to settings.json
 function setPrefix(msg, tokens) {
     let rawdata = fs.readFileSync('../data/settings.json');
     let settings = JSON.parse(rawdata);

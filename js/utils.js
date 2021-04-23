@@ -18,6 +18,7 @@ export async function permUser(msg, level) {
             break;
         }
     }
+    //overwrite for users with manage server permission
     let manager = await msg.guild.member(author).hasPermission('MANAGE_GUILD', {}, true, true);
     if (user !== undefined) {
         if (user.permission >= level || manager) {
@@ -36,16 +37,16 @@ export async function permUser(msg, level) {
         msg.reply("Sorry. You can't do that");
         return false;
     }
-    newUser(msg, users);
-    return 1 == level;
+    return await newUser(msg, users, level);
 }
 
-//creates and seves new user in users.json
-function newUser(msg, users) {
+//creates and saves new user in users.json
+async function newUser(msg, users, level) {
     logger("new user");
     users.users.push({ "id": msg.author.id, "permission": 1 });
     let data = JSON.stringify(users);
-    fs.writeFileSync('../data/users.json', data);
+    await fs.writeFileSync('../data/users.json', data);
+    return await permUser(msg, level);
 }
 
 //updates permission of user
@@ -63,7 +64,7 @@ function updateUserPerm(userId, level) {
     fs.writeFileSync('../data/users.json', data);
 }
 
-//displays disclaimer and
+//displays disclaimer and checks for user reaction
 async function disclaimer(msg, pUser) {
     //:white_check_mark: = ✅
     //:x: = ❌
@@ -101,6 +102,7 @@ Do you understand?`
     });
 }
 
+//logs with timestamp
 export function logger(input){
   console.log(getTimestamp() + ' ' + input);
 }

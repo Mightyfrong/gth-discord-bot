@@ -4,6 +4,7 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const puppeteer = require('puppeteer');
 
+//start headless browser, go to gth page
 logger("Starting GTH...");
 export const browser = await puppeteer.launch({
   headless: true,
@@ -19,6 +20,7 @@ height: 1080,
 await page.goto('https://mightyfrong.github.io/gallifreyan-translation-helper/');
 logger("GTH ready!");
 
+//aliases for supported languages
 export const langsDict = {
   'shermans': 'shermans',
   "sherman's": 'shermans',
