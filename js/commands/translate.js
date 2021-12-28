@@ -1,4 +1,5 @@
 const permLevel = 2;
+import fetch from 'node-fetch';
 import { permUser } from '../utils.js';
 import { logger } from '../utils.js'
 
