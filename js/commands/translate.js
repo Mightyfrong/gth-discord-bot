@@ -1,18 +1,21 @@
+import fetch from 'node-fetch';
+import sharp from 'sharp';
+import { logger, permUser } from '../utils.js';
+import { langsDict, browser, page } from './translate_setup.js';
+
 const permLevel = 2;
-import { permUser } from '../utils.js';
-import { logger } from '../utils.js'
-
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const sharp = require('sharp');
-
-import { langsDict, browser, page } from './translate_setup.js'
 
 //translation of user text
-export async function translate(msg, tokens) {
+export async function translate(msg, [langToken, ...inputTokens]) {
 	if (await permUser(msg, permLevel)) {
-		if (tokens[0]) {
-			quickTranslate(msg, tokens);
+		if (langToken) {
+			const lang = langsDict[langToken.toLowerCase()];
+			logger("lang: " + lang);
+
+			if (lang)
+				quickTranslate(msg, lang, inputTokens.join(' ').toLowerCase());
+			else
+				msg.channel.send('Unknown language');
 		}
 		else {
 			slowTranslate(msg);
@@ -21,41 +24,33 @@ export async function translate(msg, tokens) {
 }
 
 //translate {language} [text]
-async function quickTranslate(msg, [langToken, ...inputTokens]) {
+async function quickTranslate(msg, lang, textToTranslate) {
+	function sendPng(img) {
+		msg.channel.send({
+			files: [{
+				attachment: img,
+				name: 'file.png'
+			}]
+		});
+	}
+
 	let fg = '#F2B90D';
 	let bg = '#050F2E';
-	let lang = langsDict[langToken.toLowerCase()];
-	logger("lang: " + lang);
-	if (!lang) {
-		msg.channel.send('Unknown language');
-		return;
-	}
 	if (lang === 'hello') {
 		fetch('http://modestas.ruksnaitis.com/gallifreyan/hello.php')
 			.then(res => res.text())
-			.then(svg => sharp(Buffer.from(svg)))
-			.then(img => {
-				msg.channel.send({
-					files: [{
-						attachment: img,
-						name: 'hello.png'
-					}]
-				});
+			.then(svg => {
+				sendPng(sharp(Buffer.from(svg)))
 			});
 	} else {
 		await langSelect(lang);
 		await setColor(fg, bg);
-		await input(inputTokens.join(' ').toLowerCase());
+		await input(textToTranslate);
 		output()
-			.then(out => {
-				msg.channel.send({
-					files: [{
-						attachment: out[0],
-						name: 'file.png'
-					}]
-				});
-				if (out[1]) {
-					msg.channel.send(out[1]);
+			.then(([img, unsupChars]) => {
+				sendPng(img);
+				if (unsupChars) {
+					msg.channel.send(unsupChars);
 				}
 				page.reload();
 			})
@@ -121,7 +116,7 @@ async function output() {
 		await buffer.goto(src);
 		let svg = await buffer.content();
 		await buffer.close();
-		let img = await sharp(Buffer.from(svg))
+		let img = sharp(Buffer.from(svg));
 		resolve([img, unsupChars]);
 	});
 }
