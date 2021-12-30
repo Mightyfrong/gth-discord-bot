@@ -1,6 +1,6 @@
-import { readFileSync } from 'fs';
 import Discord from 'discord.js';
 
+import config from './services/configuration.js';
 import { logger } from './utils.js';
 import { commandHandler } from './commands.js'
 
@@ -22,7 +22,4 @@ client.on('error', (error) => {
 });
 
 //bot login
-
-let rawdata = readFileSync('./data/token.json');
-let token = JSON.parse(rawdata);
-client.login(token.token);
+client.login(config.token);

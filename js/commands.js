@@ -1,8 +1,6 @@
 import { logger } from './utils.js';
-import settingsManager from './settingsManager.js';
-import { createRequire } from 'module'
-const require = createRequire(import.meta.url);
-const fs = require('fs');
+import config from './services/configuration.js';
+import settingsManager from './services/settingsManager.js';
 
 //importing commands
 import { changePrefix } from './commands/changePrefix.js';
@@ -39,21 +37,17 @@ export async function commandHandler(msg) {
 }
 
 //checks if channel is blacklisted
-function permChannel(msg) {
-	let rawdata = fs.readFileSync('./data/blacklist.json');
-	let blacklist = JSON.parse(rawdata);
-	for (var i = 0; i < blacklist.server.length; i++) {
-		if (blacklist.server[i].id == msg.guild.id) {
-			for (var j = 0; j < blacklist.server[i].channels.length; j++) {
-				if (blacklist.server[i].channels[j].id == msg.channel.id) {
-					logger("channel blacklisted");
-					return false;
-				}
-			}
-		}
+function permChannel({ guild, channel }) {
+	const server = config.blacklist.find(({ serverId }) => serverId == guild.id);
+	const isBlacklisted = server && server.channelIds.includes(channel.id);
+
+	if (isBlacklisted) {
+		logger("channel blacklisted");
+		return false;
+	} else {
+		logger("channel ok");
+		return true;
 	}
-	logger("channel ok");
-	return true;
 }
 
 //checks the prefix
