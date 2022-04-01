@@ -22,7 +22,7 @@ export async function commandHandler(msg) {
 	if (msg.author.bot) return;
 	if (permChannel(msg)) {
 		const [prefix, command, ...tokens] = msg.content.split(" ");
-
+		
 		if (talkingToMe(msg, prefix)) {
 			logger("Command: " + command);
 			try {
