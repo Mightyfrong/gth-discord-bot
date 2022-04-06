@@ -13,7 +13,7 @@ export async function translate(msg, [langToken, ...inputTokens]) {
 			logger("lang: " + lang);
 
 			if (lang)
-				quickTranslate(msg, lang, inputTokens.join(' ').toLowerCase());
+				quickTranslate(msg, lang, inputTokens.join(' '));
 			else
 				msg.channel.send('Unknown language');
 		}
@@ -37,7 +37,11 @@ async function quickTranslate(msg, lang, textToTranslate) {
 	let fg = '#F2B90D';
 	let bg = '#050F2E';
 	if (lang === 'hello') {
-		fetch('http://modestas.ruksnaitis.com/gallifreyan/hello.php')
+		fetch('http://localhost:9000/v1/gth/translate', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({'input': textToTranslate})
+		})
 			.then(res => res.text())
 			.then(svg => {
 				sendPng(sharp(Buffer.from(svg)))
@@ -45,7 +49,7 @@ async function quickTranslate(msg, lang, textToTranslate) {
 	} else {
 		await langSelect(lang);
 		await setColor(fg, bg);
-		await input(textToTranslate);
+		await input(textToTranslate.toLowerCase());
 		output()
 			.then(([img, unsupChars]) => {
 				sendPng(img);

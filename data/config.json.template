@@ -1,0 +1,20 @@
+{
+	"token": "bot_login_token_here",
+  "settings": "./data/settings.json",
+  "blacklist": [
+    {
+      "serverId": "",
+      "channelIds": [
+        "",
+        ""
+      ]
+    },
+    {
+      "serverId": "",
+      "channelIds": [
+        "",
+        ""
+      ]
+    }
+  ]
+}
